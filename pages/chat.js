@@ -1,10 +1,43 @@
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
+import { createClient } from "@supabase/supabase-js";
 import React from "react";
 import appConfig from "../config.json";
+
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwNDE3NSwiZXhwIjoxOTU4ODgwMTc1fQ.kidt5rrV3BBquOsx5cKk942Jx3MkVkDT98Z8qFc8pXs";
+const SUPABASE_URL = "https://mxdsgvremklzmozhuarx.supabase.co";
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* 
+fetch(`${SUPABASE-URL}/rest/v1/mensagens?select=*`, {
+  geaders: {
+    'Content-type': 'application/json',
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer' + SUPABASE_ANON_KEY,
+  }
+})
+  .then((res) => {
+    return res.json();
+  })
+  .then((response) => {
+    console.log(response);
+  });
+*/
 
 export default function ChatPage() {
   const [mensagem, setMensagem] = React.useState("");
   const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+
+  React.useEffect(() => {
+    supabaseClient
+      .from("mensagens")
+      .select('*')
+      .order('id', { ascending: false })
+      .then(({ data }) => {
+        console.log("Dados da consulta: ", data);
+        setListaDeMensagens(data);
+      });
+  }, []);
 
   // Sua lógica vai aqui
   /*
@@ -15,19 +48,34 @@ export default function ChatPage() {
     // Dev
     - Campo crido
     - Vamos usar o onChange e useState (ter if caso seja enter para limpar a variavel)
-    = Lista de mensagens
+    - Lista de mensagens
   */
   // ./Sua lógica vai aqui
 
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-      id: listaDeMensagens.length + 1,
+      //id: listaDeMensagens.length + 1,
       de: "danilosilva441",
       texto: novaMensagem,
     };
 
-    setListaDeMensagens([ mensagem, ...listaDeMensagens ]);
-    setMensagem("");
+    supabaseClient
+      .from('mensagens')
+      .insert([
+        //Tem que ser um objeto com os MESMOS CAMPOS que você esqueveu no supabase.
+        mensagem
+      ])
+      .then(({ data }) =>{
+        console.log('Criando mensagem: ', data);
+        setListaDeMensagens([
+          data[0],
+          ...listaDeMensagens,
+        ]);
+      });
+    
+    //setListaDeMensagens([mensagem, ...listaDeMensagens]);
+    setMensagem('');
+    
   }
 
   return (
@@ -185,7 +233,7 @@ function MessageList(props) {
                   display: "inline-block",
                   marginRight: "8px",
                 }}
-                src={``}
+                src={`https://github.com/${mensagem.de}.png`}
               />
               <Text tag="strong">{mensagem.de}</Text>
               <Text

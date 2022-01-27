@@ -47,7 +47,7 @@ export default function PaginaInicial() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: appConfig.theme.colors.primary[500],
+          backgroundColor: appConfig.theme.colors.primary[900],
           backgroundImage:
             "url(https://wallpaperaccess.com/full/419305.jpg)",
           backgroundRepeat: "no-repeat",
@@ -64,12 +64,12 @@ export default function PaginaInicial() {
               xs: "column",
               sm: "row",
             },
-            width: "100%",
-            maxWidth: "700px",
+            width: "70%",
+            maxWidth: "400px",
             borderRadius: "5px",
-            padding: "32px",
+            padding: "22px",
             margin: "16px",
-            boxShadow: "0 2px 10px 0 rgb(0 0 0 / 20%)",
+            boxShadow: "0 2px 10px 0 rgb(0 0 0 / 10%)",
             backgroundColor: appConfig.theme.colors.neutrals[700],
           }}
         >
@@ -87,7 +87,7 @@ export default function PaginaInicial() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              width: { xs: "100%", sm: "50%" },
+              width: { xs: "100%", sm: "65%" },
               textAlign: "center",
               marginBottom: "32px",
             }}
@@ -96,7 +96,7 @@ export default function PaginaInicial() {
             <Text
               variant="body3"
               styleSheet={{
-                marginBottom: "32px",
+                marginBottom: "22px",
                 color: appConfig.theme.colors.neutrals[300],
               }}
             >
@@ -130,9 +130,9 @@ export default function PaginaInicial() {
               textFieldColors={{
                 neutral: {
                   textColor: appConfig.theme.colors.neutrals[200],
-                  mainColor: appConfig.theme.colors.neutrals[900],
+                  mainColor: appConfig.theme.colors.neutrals[400],
                   mainColorHighlight: appConfig.theme.colors.primary[500],
-                  backgroundColor: appConfig.theme.colors.neutrals[800],
+                  backgroundColor: appConfig.theme.colors.neutrals[600],
                 },
               }}
             />
@@ -158,19 +158,19 @@ export default function PaginaInicial() {
               flexDirection: "column",
               alignItems: "center",
               maxWidth: "200px",
-              padding: "16px",
-              backgroundColor: appConfig.theme.colors.neutrals[800],
-              border: "1px solid",
+              padding: "20px",
+              backgroundColor: appConfig.theme.colors.neutrals[1000],
+              border: "0px solid",
               borderColor: appConfig.theme.colors.neutrals[999],
               borderRadius: "10px",
               flex: 1,
-              minHeight: "240px",
+              minHeight: "200px",
             }}
           >
             <Image
               styleSheet={{
-                borderRadius: "50%",
-                marginBottom: "16px",
+                borderRadius: "25%",
+                marginBottom: "12px",
               }}
               src={`https://github.com/${username}.png`}
             />
@@ -179,8 +179,8 @@ export default function PaginaInicial() {
               styleSheet={{
                 color: appConfig.theme.colors.neutrals[200],
                 backgroundColor: appConfig.theme.colors.neutrals[900],
-                padding: "3px 10px",
-                borderRadius: "1000px",
+                padding: "0px 3px",
+                borderRadius: "100px",
               }}
             >
               {username}
