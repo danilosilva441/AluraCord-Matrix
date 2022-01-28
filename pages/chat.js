@@ -1,7 +1,9 @@
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import { createClient } from "@supabase/supabase-js";
 import React from "react";
+import { useRouter } from 'next/router';
 import appConfig from "../config.json";
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwNDE3NSwiZXhwIjoxOTU4ODgwMTc1fQ.kidt5rrV3BBquOsx5cKk942Jx3MkVkDT98Z8qFc8pXs";
@@ -25,8 +27,18 @@ fetch(`${SUPABASE-URL}/rest/v1/mensagens?select=*`, {
 */
 
 export default function ChatPage() {
+  const roteamento = useRouter();
+  const usuarioLogado = roteamento.query.username;
+  console.log('roteamento.query', roteamento.query);
+  console.log('usuarioLogado', usuarioLogado);
   const [mensagem, setMensagem] = React.useState("");
-  const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+  const [listaDeMensagens, setListaDeMensagens] = React.useState([
+   // {
+   //   id: 1,
+   //   de: 'omariosouto',
+   //   texto: ':sticker: https://www.alura.com.br/imersao-react-4/assets/figurinhas/Figurinha_3.png',
+   // }
+  ]);
 
   React.useEffect(() => {
     supabaseClient
@@ -35,7 +47,7 @@ export default function ChatPage() {
       .order('id', { ascending: false })
       .then(({ data }) => {
         console.log("Dados da consulta: ", data);
-        setListaDeMensagens(data);
+       setListaDeMensagens(data);
       });
   }, []);
 
@@ -55,7 +67,7 @@ export default function ChatPage() {
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
       //id: listaDeMensagens.length + 1,
-      de: "danilosilva441",
+      de: usuarioLogado,
       texto: novaMensagem,
     };
 
@@ -99,10 +111,10 @@ export default function ChatPage() {
           flex: 1,
           boxShadow: "0 2px 10px 0 rgb(0 0 0 / 20%)",
           borderRadius: "5px",
-          backgroundColor: appConfig.theme.colors.neutrals[700],
+          backgroundColor: appConfig.theme.colors.neutrals[600],
           height: "100%",
-          maxWidth: "95%",
-          maxHeight: "95vh",
+          maxWidth: "70%",
+          maxHeight: "100vh",
           padding: "32px",
         }}
       >
@@ -161,6 +173,13 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
+            {/* CallBack */}
+            <ButtonSendSticker 
+              onStickerClick={(sticker) => {
+                console.log('[USANDO O COMPONENTE] Salva esse sticker no banco', sticker)
+                handleNovaMensagem(':sticker:' + sticker);
+              }}
+            />
           </Box>
         </Box>
       </Box>
@@ -174,7 +193,7 @@ function Header() {
       <Box
         styleSheet={{
           width: "100%",
-          marginBottom: "16px",
+          marginBottom: "10px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -247,7 +266,16 @@ function MessageList(props) {
                 {new Date().toLocaleDateString()}
               </Text>
             </Box>
-            {mensagem.texto}
+            {/* [Declarativo] */}
+            {/*Condicional: {mensagem.texto.startsWith(':sticker:').toString()}*/}
+            {mensagem.texto.startsWith(':sticker:')
+              ? (
+                  <Image src={mensagem.texto.replace(':sticker:', '')} />
+              )
+              : (
+                mensagem.texto
+              )}
+            {/*{mensagem.texto}*/}
           </Text>
         );
       })}
