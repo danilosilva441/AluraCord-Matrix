@@ -1,72 +1,67 @@
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import { createClient } from "@supabase/supabase-js";
 import React from "react";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 import appConfig from "../config.json";
-import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
+import { ButtonSendSticker } from "../src/components/ButtonSendSticker";
 
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzMwNDE3NSwiZXhwIjoxOTU4ODgwMTc1fQ.kidt5rrV3BBquOsx5cKk942Jx3MkVkDT98Z8qFc8pXs";
 const SUPABASE_URL = "https://mxdsgvremklzmozhuarx.supabase.co";
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* 
-fetch(`${SUPABASE-URL}/rest/v1/mensagens?select=*`, {
-  geaders: {
-    'Content-type': 'application/json',
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': 'Bearer' + SUPABASE_ANON_KEY,
-  }
-})
-  .then((res) => {
-    return res.json();
-  })
-  .then((response) => {
-    console.log(response);
-  });
-*/
+function escutaMensagensEmTempoReal(adicionaMensagem) {
+  return supabaseClient
+    .from('mensagens')
+    .on('INSERT', (respostaLive) => {
+      adicionaMensagem(respostaLive.new);
+    })
+    .subscribe();
+}
 
 export default function ChatPage() {
   const roteamento = useRouter();
   const usuarioLogado = roteamento.query.username;
-  console.log('roteamento.query', roteamento.query);
-  console.log('usuarioLogado', usuarioLogado);
-  const [mensagem, setMensagem] = React.useState("");
-  const [listaDeMensagens, setListaDeMensagens] = React.useState([
-   // {
-   //   id: 1,
-   //   de: 'omariosouto',
-   //   texto: ':sticker: https://www.alura.com.br/imersao-react-4/assets/figurinhas/Figurinha_3.png',
-   // }
-  ]);
+  const [mensagem, setMensagem] = React.useState('');
+  const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
   React.useEffect(() => {
     supabaseClient
-      .from("mensagens")
+      .from('mensagens')
       .select('*')
       .order('id', { ascending: false })
       .then(({ data }) => {
-        console.log("Dados da consulta: ", data);
-       setListaDeMensagens(data);
+        // console.log('Dados da consulta:', data);
+        setListaDeMensagens(data);
       });
+
+    const subscription = escutaMensagensEmTempoReal((novaMensagem) => {
+      console.log('Nova mensagem:', novaMensagem);
+      console.log('listaDeMensagens:', listaDeMensagens);
+      // Quero reusar um valor de referencia (objeto/array) 
+      // Passar uma função pro setState
+
+      // setListaDeMensagens([
+      //     novaMensagem,
+      //     ...listaDeMensagens
+      // ])
+      setListaDeMensagens((valorAtualDaLista) => {
+        console.log('valorAtualDaLista:', valorAtualDaLista);
+        return [
+          novaMensagem,
+          ...valorAtualDaLista,
+        ]
+      });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    }
   }, []);
-
-  // Sua lógica vai aqui
-  /*
-    - Usuário digita no campo textarea
-    - Aperta enter para enviar
-    - Tem que adicionar o texto na listagem
-
-    // Dev
-    - Campo crido
-    - Vamos usar o onChange e useState (ter if caso seja enter para limpar a variavel)
-    - Lista de mensagens
-  */
-  // ./Sua lógica vai aqui
 
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-      //id: listaDeMensagens.length + 1,
+      // id: listaDeMensagens.length + 1,
       de: usuarioLogado,
       texto: novaMensagem,
     };
@@ -74,21 +69,16 @@ export default function ChatPage() {
     supabaseClient
       .from('mensagens')
       .insert([
-        //Tem que ser um objeto com os MESMOS CAMPOS que você esqueveu no supabase.
+        // Tem que ser um objeto com os MESMOS CAMPOS que você escreveu no supabase
         mensagem
       ])
-      .then(({ data }) =>{
+      .then(({ data }) => {
         console.log('Criando mensagem: ', data);
-        setListaDeMensagens([
-          data[0],
-          ...listaDeMensagens,
-        ]);
       });
-    
-    //setListaDeMensagens([mensagem, ...listaDeMensagens]);
+
     setMensagem('');
-    
   }
+
 
   return (
     <Box
@@ -174,10 +164,10 @@ export default function ChatPage() {
               }}
             />
             {/* CallBack */}
-            <ButtonSendSticker 
+            <ButtonSendSticker
               onStickerClick={(sticker) => {
-                console.log('[USANDO O COMPONENTE] Salva esse sticker no banco', sticker)
-                handleNovaMensagem(':sticker:' + sticker);
+                // console.log('[USANDO O COMPONENTE] Salva esse sticker no banco', sticker)
+                handleNovaMensagem(":sticker:" + sticker);
               }}
             />
           </Box>
@@ -212,7 +202,7 @@ function Header() {
 }
 
 function MessageList(props) {
-  console.log(props.listaDeMensagens);
+  // console.log(props.listaDeMensagens);
   return (
     <Box
       tag="ul"
@@ -268,13 +258,11 @@ function MessageList(props) {
             </Box>
             {/* [Declarativo] */}
             {/*Condicional: {mensagem.texto.startsWith(':sticker:').toString()}*/}
-            {mensagem.texto.startsWith(':sticker:')
-              ? (
-                  <Image src={mensagem.texto.replace(':sticker:', '')} />
-              )
-              : (
-                mensagem.texto
-              )}
+            {mensagem.texto.startsWith(":sticker:") ? (
+              <Image src={mensagem.texto.replace(":sticker:", "")} />
+            ) : (
+              mensagem.texto
+            )}
             {/*{mensagem.texto}*/}
           </Text>
         );
